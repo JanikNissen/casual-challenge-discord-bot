@@ -1,21 +1,5 @@
 import 'dotenv/config';
-import { getRPSChoices } from './game.js';
-import { capitalize, InstallGlobalCommands } from './utils.js';
-
-// Get the game choices from game.js
-function createCommandChoices() {
-  const choices = getRPSChoices();
-  const commandChoices = [];
-
-  for (let choice of choices) {
-    commandChoices.push({
-      name: capitalize(choice),
-      value: choice.toLowerCase(),
-    });
-  }
-
-  return commandChoices;
-}
+import { InstallGlobalCommands } from './utils.js';
 
 // Simple test command
 const TEST_COMMAND = {
@@ -26,17 +10,15 @@ const TEST_COMMAND = {
   contexts: [0, 1, 2],
 };
 
-// Command containing options
-const CHALLENGE_COMMAND = {
-  name: 'challenge',
-  description: 'Challenge to a match of rock paper scissors',
+const CHECK_CARD_COMMAND = {
+  name: 'checkcard',
+  description: 'Check the legality and BP of a card',
   options: [
     {
       type: 3,
-      name: 'object',
-      description: 'Pick your object',
+      name: 'cardname',
+      description: 'Which card to check',
       required: true,
-      choices: createCommandChoices(),
     },
   ],
   type: 1,
@@ -44,6 +26,23 @@ const CHALLENGE_COMMAND = {
   contexts: [0, 2],
 };
 
-const ALL_COMMANDS = [TEST_COMMAND, CHALLENGE_COMMAND];
+const CONFIRM_DECK_LEGALITY_COMMAND = {
+  name: 'deckcheck',
+  description: 'Check the legality and BP of a card',
+  options: [
+    {
+      type: 3,
+      name: 'decklink',
+      description: 'Scryfall link to the deck',
+      required: true,
+    },
+  ],
+  type: 1,
+  integration_types: [0, 1],
+  contexts: [0, 2],
+};
+
+
+const ALL_COMMANDS = [TEST_COMMAND, CHECK_CARD_COMMAND, CONFIRM_DECK_LEGALITY_COMMAND];
 
 InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);
