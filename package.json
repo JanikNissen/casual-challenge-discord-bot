@@ -10,16 +10,20 @@
   },
   "scripts": {
     "start": "node app.js",
-    "register": "node commands.js",
+    "register": "node utils.js",
     "dev": "nodemon app.js"
   },
   "author": "Shay DeWael",
   "license": "MIT",
   "dependencies": {
     "cheerio": "^1.0.0",
+    "discord-api-types": "^0.37.119",
     "discord-interactions": "^4.0.0",
+    "discord.js": "^14.17.3",
     "dotenv": "^16.0.3",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "timers": "^0.1.1",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.0"

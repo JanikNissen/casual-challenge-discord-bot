@@ -1,46 +1,99 @@
 import 'dotenv/config';
+import {REST} from 'discord.js';
+import {Routes} from 'discord-api-types/v10';
+import {commands} from './commands.js'
 
-export async function DiscordRequest(endpoint, options) {
-  // append endpoint to root API URL
-  const url = 'https://discord.com/api/v10/' + endpoint;
-  // Stringify payloads
-  if (options.body) options.body = JSON.stringify(options.body);
-  // Use fetch to make requests
-  const res = await fetch(url, {
-    headers: {
-      Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
-      'Content-Type': 'application/json; charset=UTF-8',
-      'User-Agent': 'DiscordBot (https://github.com/discord/discord-example-app, 1.0.0)',
-    },
-    ...options
-  });
-  // throw API errors
-  if (!res.ok) {
-    const data = await res.json();
-    console.log(res.status);
-    throw new Error(JSON.stringify(data));
+export function setCommands () {
+  const c = [];
+  commands.forEach(command => {c.push(command.data.toJSON())})
+  const rest = new REST().setToken(process.env.DISCORD_TOKEN);
+
+  (async () => {
+    try{
+      console.log(`Started refreshing ${c.length} application (/) commands`);
+
+      const data = await rest.put(
+          Routes.applicationCommands(process.env.APP_ID),
+          {body: c},
+      );
+
+      console.log(`Successfully reloaded ${data.length} application (/) commands`);
+
+    } catch (error){
+      console.error(error);
+    }
+  })();
+}
+
+
+export function IsScryfallCardLink(string){
+  const regex = new RegExp("https:\/\/(www\.)?scryfall.com\/card\/[a-z|\/-\d]*", 'g');
+  return regex.test(string);
+}
+
+export function IsScryfallDeckLink(string){
+  const regex = new RegExp("https:\/\/(www.)?scryfall.com\/@[A-Z|a-z\d]*\/decks\/[a-z\-\d]*", 'g');
+  return regex.test(string);
+}
+
+export class Card {
+  constructor(name, bp, legal){
+    this.name = name;
+    this.bp = bp;
+    this.legal = legal;
   }
-  // return original response
-  return res;
 }
 
-export async function InstallGlobalCommands(appId, commands) {
-  // API endpoint to overwrite global commands
-  const endpoint = `applications/${appId}/commands`;
-  try {
-    // This is calling the bulk overwrite endpoint: https://discord.com/developers/docs/interactions/application-commands#bulk-overwrite-global-application-commands
-    await DiscordRequest(endpoint, { method: 'PUT', body: commands });
-  } catch (err) {
-    console.error(err);
+export class Deck {
+  constructor(name){
+    this.name = name;
+    this.mainBoard = [];
+    this.sideBoard = [];
   }
-}
+  addCardToDeck(card, amount, isMainBoard = true){
+    if(isMainBoard){
+      this.mainBoard.push({card: card, amount: amount});
+    } else {
+      this.sideBoard.push({card: card, amount: amount});
+    }
+  }
+  getMainBoardSize(){
+    return this.getBoardSize(this.mainBoard);
+  }
+  getSideBoardSize(){
+    return this.getBoardSize(this.sideBoard);
+  }
+  getBoardSize(board){
+    let amount = 0;
+    for(let i = 0; i < board.length; i++){
+      amount += board[i].amount;
+    }
+    return amount;
+  }
 
-// Simple method that returns a random emoji from list
-export function getRandomEmoji() {
-  const emojiList = ['😭','😄','😌','🤓','😎','😤','🤖','😶‍🌫️','🌏','📸','💿','👋','🌊','✨'];
-  return emojiList[Math.floor(Math.random() * emojiList.length)];
-}
+  getTotalBP(){
+    let bp = 0;
+    for(let i = 0; i < this.mainBoard.length; i++){
+      bp += this.mainBoard[i].card.bp * this.mainBoard[i].amount;
+    }
+    for(let i = 0; i < this.sideBoard.length; i++){
+      bp += this.sideBoard[i].card.bp * this.sideBoard[i].amount;
+    }
+    return bp;
+  }
+  getIllegalCards(){
+    let offenders = [];
+    offenders = offenders.concat(this.mainBoard.filter((c) => c.card.legal === false));
+    offenders = offenders.concat(this.sideBoard.filter((c) => c.card.legal === false));
+    return offenders;
+  }
+  checkLegality(){
+    return {
+      main: this.getMainBoardSize() >= 60,
+      side: this.getSideBoardSize() <= 15,
+      bans: this.getIllegalCards().length === 0,
+      budget: this.getTotalBP() <= 2500
+    };
+  }
 
-export function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
 }
