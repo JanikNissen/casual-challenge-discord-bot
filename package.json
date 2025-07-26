@@ -1,8 +1,8 @@
 {
-  "name": "discord-getting-started",
+  "name": "casual-challenge-discord-bot",
   "private": true,
   "version": "1.0.0",
-  "description": "Discord example app",
+  "description": "Casual Challenge Discord Bot",
   "main": "app.js",
   "type": "module",
   "engines": {
@@ -13,7 +13,7 @@
     "register": "node utils.js",
     "dev": "nodemon app.js"
   },
-  "author": "Shay DeWael",
+  "author": "Janik Nissen",
   "license": "MIT",
   "dependencies": {
     "cheerio": "^1.0.0",

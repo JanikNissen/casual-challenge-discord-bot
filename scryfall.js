@@ -1,13 +1,12 @@
 import * as cheerio from 'cheerio';
-import {setTimeout} from 'timers/promises';
 
 export async function ScryfallCardRequest(cardName) {
-    const url = 'https://api.scryfall.com/cards/named?exact=' + cardName.replaceAll(' ', '+');
+    const url = 'https://api.scryfall.com/cards/named?exact=' + cardName.replaceAll('+','').replaceAll(' ', '+');
 
     const res = await fetch(url, {
         headers: {
             'User-Agent': 'CCDiscordBotTest/1.0.0',
-            'Accept':'*/*'
+            'Accept': '*/*'
         }
     });
     // throw API errors
@@ -20,10 +19,12 @@ export async function ScryfallCardRequest(cardName) {
 }
 
 export async function ScryfallDeckRequest(deckURL) {
-    const res = await fetch(deckURL, {
+    const tidyURL = new URL(deckURL);
+    tidyURL.search = 'as=list';
+    const res = await fetch(tidyURL, {
         headers: {
             'User-Agent': 'CCDiscordBotTest/1.0.0',
-            'Accept':'text/html'
+            'Accept': 'text/html'
         }
     });
     if (!res.ok) {
@@ -35,10 +36,9 @@ export async function ScryfallDeckRequest(deckURL) {
     const $ = cheerio.load(data);
 
 
+    const cards = {name: '', main: [], side: []};
 
-    const cards = {name: '', main:[], side:[]};
-
-    cards.name= $('.deck-details-title').text();
+    cards.name = $('.deck-details-title').text();
 
     let b = $('div.deck-list').children('div.deck-list-section');
     for (let i = 0; i < b.length; i++) {
@@ -47,21 +47,15 @@ export async function ScryfallDeckRequest(deckURL) {
         let c = $(b[i]).find('ul').children('li')
         for (let j = 0; j < c.length; j++) {
             let amount = parseInt($(c[j]).find('.deck-list-entry-count').text());
-            const scryfallLinkName=$(c[j]).find('.deck-list-entry-name a').attr('href').split('/').pop();
-            let cardName=$(c[j]).find('.deck-list-entry-name').text();
-            //We have to check if the displayed name is the full card name and if not, need to search for that card in the API
-            if(scryfallLinkName.split('-').length <= cardName.trim().split(' ').length) {
-                await setTimeout(50);
-                const card = await ScryfallCardRequest(cardName.replace('✶','').trim().replaceAll('\n', ''));
-                cardName = card.name;
-            }
-            if(new RegExp('Sideboard', 'g').test(title)) {
-                cards.side.push({name: cardName.replace('✶','').trim().replaceAll('\n', ''),amount: amount})
+            const scryfallLinkName = $(c[j]).find('.deck-list-entry-name a').attr('href').split('/').pop();
+
+            if (new RegExp('Sideboard', 'g').test(title)) {
+                cards.side.push({name: scryfallLinkName, amount: amount});
             } else {
-                cards.main.push({name: cardName.replace('✶','').trim().replaceAll('\n', ''),amount: amount})
+                cards.main.push({name: scryfallLinkName, amount: amount});
             }
         }
     }
-    return cards
+    return cards;
 }
 
