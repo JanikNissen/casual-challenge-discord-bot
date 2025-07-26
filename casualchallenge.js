@@ -28,9 +28,7 @@ function getUniqueCards(list) {
 
 export async function CCDeckCheck(list) {
     let uniqueCards = getUniqueCards(list);
-    let payload = '';
-
-    payload = uniqueCards.join(';');
+    let payload = uniqueCards.join(';');
     const url = 'https://api.casualchallenge.gg/v1/cards?names=' + payload;
 
     const res = await fetch(url, {
