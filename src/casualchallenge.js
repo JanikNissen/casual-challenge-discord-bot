@@ -1,11 +1,11 @@
-import {Card, Deck} from './utils.js';
+import {Card, constants, Deck} from './utils.js';
 
 async function checkCard(cardName) {
     const url = 'https://api.casualchallenge.gg/v1/cards?names=' + cardName;
 
     const res = await fetch(url, {
         headers: {
-            'User-Agent': 'CCDiscordBotTest/1.0.0',
+            'User-Agent': constants.USER_AGENT,
             'Authorization': 'Bearer ' + process.env.CC_API_TOKEN
         }
     });
@@ -33,7 +33,7 @@ export async function CCDeckCheck(list) {
 
     const res = await fetch(url, {
         headers: {
-            'User-Agent': 'CCDiscordBotTest/1.0.0',
+            'User-Agent': constants.USER_AGENT,
             'Authorization': 'Bearer ' + process.env.CC_API_TOKEN
         }
     }).catch(err => console.log(err));
@@ -42,8 +42,7 @@ export async function CCDeckCheck(list) {
         console.log(res.status);
         console.log(res.statusText);
         console.log(res);
-        //ToDo: Throw proper errors here
-        throw new Error(res);
+        throw new Error(`api.casualchallenge.gg returned ${res.status} (${res.statusText})`);
     }
 
     const data = await res.json();
@@ -75,32 +74,32 @@ export async function getCardLegalityEmbed(cardName) {
         if (foundCard) {
             card = cc.found[0];
         } else {
-            card = cc.missing[0]
+            card = cc.missing[0];
         }
         let text = '';
         let color = 0x00ff00;
 
         if (foundCard === false) {
             color = 0xff0000;
-            text = `We couldn't find this card. Sorry...`;
+            text = 'We couldn\'t find this card. Sorry...';
             return {
-                title: `${card.replaceAll("'", "\'")}`,
+                title: card.replaceAll("'", "\'"),
                 description: text,
                 color: color,
             };
         }
 
-        text = text.concat(`It costs **${card.budgetPoints} ** BP`);
+        text += `It costs **${card.budgetPoints} ** BP`;
 
         if (card.legality === 'BANNED') {
             color = 0xff0000;
             if (card.reason.appliedRules[0] === "PAPER_BAN") {
-                text = text.concat(`\nIt is banned because it is also banned in ${card.reason.bannedIn[0].toLowerCase()}`);
+                text += `\nIt is banned because it is also banned in ${card.reason.bannedIn[0].toLowerCase()}`;
             } else if (card.reason.appliedRules[0] === "TOURNAMENT_STAPLE") {
-                text = text.concat(`\nIt is banned because of its high play rate in ${Object.getOwnPropertyNames(card.reason.metaShares).join(', ').toLowerCase()}`);
+                text += `\nIt is banned because of its high play rate in ${Object.getOwnPropertyNames(card.reason.metaShares).join(', ').toLowerCase()}`;
             }
         } else {
-            text = text.concat(` and is legal.`);
+            text += ' and is legal.';
         }
         return {
             title: card.name,
