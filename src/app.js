@@ -1,23 +1,23 @@
 import {Client, Collection, Events, MessageFlags} from 'discord.js';
 import {GatewayIntentBits} from 'discord-api-types/v10';
-import {GetCanonicalCardNameFromScryfallLink, IsScryfallCardLink, readSecret} from './utils.js';
+import {Link, readSecret} from './utils.js';
 import {commands} from './commands.js';
 
 import 'dotenv/config';
 import {getCardLegalityEmbed} from './casualchallenge.js'
 
-const token = readSecret('discord_token')
+const token = readSecret('discord_token');
 
 const client = new Client({intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]});
 client.commands = new Collection();
 commands.forEach(command => {
     if ('data' in command && 'execute' in command) {
-        client.commands.set(command.data.name, command)
+        client.commands.set(command.data.name, command);
     }
 });
 
 client.once(Events.ClientReady, readyClient => {
-    console.log(`Ready! Logged in as ${readyClient.user.tag}`)
+    console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 });
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
@@ -41,17 +41,18 @@ client.on(Events.InteractionCreate, async interaction => {
     }
 });
 
-let scryfallBotId = readSecret('scryfall_discord_bot_id');
+const scryfallBotId = readSecret('scryfall_discord_bot_id');
 
 client.on(Events.MessageCreate, async message => {
     if (message.author.id !== scryfallBotId) {
         return;
     }
-    if (!IsScryfallCardLink(message.content)) {
+    let link = new Link(message.content);
+    if (!link.isScryfallCard()) {
         return;
     }
 
-    await message.reply({embeds: [await getCardLegalityEmbed(GetCanonicalCardNameFromScryfallLink(message.content))]});
+    await message.reply({embeds: [await getCardLegalityEmbed(link.getNormalizedCardName())]});
 });
 
 client.login(token);

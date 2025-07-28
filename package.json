@@ -3,15 +3,15 @@
   "private": true,
   "version": "1.0.0",
   "description": "Casual Challenge Discord Bot",
-  "main": "app.js",
+  "main": "src/app.js",
   "type": "module",
   "engines": {
-    "node": ">=18.x"
+    "node": "^20"
   },
   "scripts": {
-    "start": "node app.js",
-    "register": "node utils.js",
-    "dev": "nodemon app.js"
+    "start": "node src/app.js",
+    "register": "node src/utils.js",
+    "dev": "nodemon src/app.js"
   },
   "author": "Janik Nissen",
   "license": "MIT",

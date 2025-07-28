@@ -4,10 +4,14 @@ import {Routes} from 'discord-api-types/v10';
 import {commands} from './commands.js';
 import fs from 'fs';
 
+export const constants = {
+    USER_AGENT: 'CCDiscordBotTest/1.0.0',
+};
+
 export function setCommands() {
     const c = [];
     commands.forEach(command => {
-        c.push(command.data.toJSON())
+        c.push(command.data.toJSON());
     })
     const rest = new REST().setToken(readSecret('discord_token'));
 
@@ -31,20 +35,37 @@ export function setCommands() {
 export function readSecret(secretName) {
     return fs.readFileSync(`./env/${secretName}.txt`, 'utf8');
 }
+export class Link {
+    constructor(rawUrl) {
+        this.rawUrl = rawUrl;
+        this.url = new URL(rawUrl);
 
-export function IsScryfallCardLink(string) {
-    const regex = new RegExp("https:\/\/(www\.)?scryfall.com\/card\/[a-z|\/-\d]*", 'g');
-    return regex.test(string);
-}
+        let isScryfall = this.url.hostname === 'scryfall.com';
+        this.pathParts = this.url.pathname.split('/');
 
-export function IsScryfallDeckLink(string) {
-    const regex = new RegExp("https:\/\/(www.)?scryfall.com\/@[A-Z|a-z\d]*\/decks\/[a-z\-\d]*", 'g');
-    return regex.test(string);
-}
+        this._isScryfallCard = isScryfall && this.pathParts.length >= 2 && this.pathParts[0] === 'cards';
+        this._isScryfallDeck = isScryfall && this.pathParts.length >= 2 && this.pathParts[1] === 'decks';
+    }
 
-export function GetCanonicalCardNameFromScryfallLink(cardLink) {
-    const scryURL = new URL(cardLink);
-    return scryURL.pathname.split('/').pop();
+    isScryfallCard() {
+        return this._isScryfallCard;
+    }
+
+    isScryfallDeck() {
+        return this._isScryfallDeck;
+    }
+
+    getNormalizedCardName() {
+        return this.pathParts[this.pathParts.length - 1];
+    }
+
+    asURL() {
+        return this.url;
+    }
+
+    toString() {
+        return this.rawUrl;
+    }
 }
 
 export class Card {
@@ -113,5 +134,4 @@ export class Deck {
             budget: this.getTotalBP() <= 2500
         };
     }
-
 }

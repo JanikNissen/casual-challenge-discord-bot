@@ -1,11 +1,15 @@
 import * as cheerio from 'cheerio';
+import {constants, Link} from './utils.js';
 
+/**
+ * @param {string} cardName
+ */
 export async function ScryfallCardRequest(cardName) {
-    const url = 'https://api.scryfall.com/cards/named?exact=' + cardName.replaceAll('+','').replaceAll(' ', '+');
+    const url = 'https://api.scryfall.com/cards/named?exact=' + encodeURI(cardName);
 
     const res = await fetch(url, {
         headers: {
-            'User-Agent': 'CCDiscordBotTest/1.0.0',
+            'User-Agent': constants.USER_AGENT,
             'Accept': '*/*'
         }
     });
@@ -18,12 +22,15 @@ export async function ScryfallCardRequest(cardName) {
     return await res.json();
 }
 
-export async function ScryfallDeckRequest(deckURL) {
-    const tidyURL = new URL(deckURL);
+/**
+ * @param {Link} deckLink
+ */
+export async function ScryfallDeckRequest(deckLink) {
+    const tidyURL = deckLink.asURL();
     tidyURL.search = 'as=list';
     const res = await fetch(tidyURL, {
         headers: {
-            'User-Agent': 'CCDiscordBotTest/1.0.0',
+            'User-Agent': constants.USER_AGENT,
             'Accept': 'text/html'
         }
     });
@@ -44,7 +51,7 @@ export async function ScryfallDeckRequest(deckURL) {
     for (let i = 0; i < b.length; i++) {
         //add to correct number
         let title = $(b[i]).find('.deck-list-section-title').text();
-        let c = $(b[i]).find('ul').children('li')
+        let c = $(b[i]).find('ul').children('li');
         for (let j = 0; j < c.length; j++) {
             let amount = parseInt($(c[j]).find('.deck-list-entry-count').text());
             const scryfallLinkName = $(c[j]).find('.deck-list-entry-name a').attr('href').split('/').pop();
@@ -58,4 +65,3 @@ export async function ScryfallDeckRequest(deckURL) {
     }
     return cards;
 }
-
