@@ -1,4 +1,3 @@
-import {Card, constants, Deck} from './utils.js';
 import {Card, Deck, constants, readSecret} from './utils.js';
 
 let bearerToken = '';
@@ -7,7 +6,7 @@ let bearerToken = '';
 async function checkCard(cardName) {
     const url = 'https://api.casualchallenge.gg/v1/cards?names=' + cardName;
 
-    if(bearerToken.length === 0){
+    if (bearerToken.length === 0) {
         bearerToken = readSecret('cc_api_token');
     }
 
@@ -39,7 +38,7 @@ export async function CCDeckCheck(list) {
     let uniqueCards = getUniqueCards(list);
     let payload = uniqueCards.join(';');
 
-    if(bearerToken.length === 0){
+    if (bearerToken.length === 0) {
         bearerToken = readSecret('cc_api_token');
     }
 

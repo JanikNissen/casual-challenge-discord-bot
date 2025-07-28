@@ -35,6 +35,7 @@ export function setCommands() {
 export function readSecret(secretName) {
     return fs.readFileSync(`./env/${secretName}.txt`, 'utf8');
 }
+
 export class Link {
     constructor(rawUrl) {
         this.rawUrl = rawUrl;
@@ -43,8 +44,8 @@ export class Link {
         let isScryfall = this.url.hostname === 'scryfall.com';
         this.pathParts = this.url.pathname.split('/');
 
-        this._isScryfallCard = isScryfall && this.pathParts.length >= 2 && this.pathParts[0] === 'cards';
-        this._isScryfallDeck = isScryfall && this.pathParts.length >= 2 && this.pathParts[1] === 'decks';
+        this._isScryfallCard = isScryfall && this.pathParts.length >= 2 && this.pathParts[1] === 'card';
+        this._isScryfallDeck = isScryfall && this.pathParts.length >= 2 && this.pathParts[2] === 'decks';
     }
 
     isScryfallCard() {
