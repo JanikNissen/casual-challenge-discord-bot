@@ -1,21 +1,22 @@
 import 'dotenv/config';
 import {REST} from 'discord.js';
 import {Routes} from 'discord-api-types/v10';
-import {commands} from './commands.js'
+import {commands} from './commands.js';
+import fs from 'fs';
 
 export function setCommands() {
     const c = [];
     commands.forEach(command => {
         c.push(command.data.toJSON())
     })
-    const rest = new REST().setToken(process.env.DISCORD_TOKEN);
+    const rest = new REST().setToken(readSecret('discord_token'));
 
     (async () => {
         try {
             console.log(`Started refreshing ${c.length} application (/) commands`);
 
             const data = await rest.put(
-                Routes.applicationCommands(process.env.APP_ID),
+                Routes.applicationCommands(readSecret('app_id')),
                 {body: c},
             );
 
@@ -27,6 +28,9 @@ export function setCommands() {
     })();
 }
 
+export function readSecret(secretName) {
+    return fs.readFileSync(`./env/${secretName}.txt`, 'utf8');
+}
 
 export function IsScryfallCardLink(string) {
     const regex = new RegExp("https:\/\/(www\.)?scryfall.com\/card\/[a-z|\/-\d]*", 'g');

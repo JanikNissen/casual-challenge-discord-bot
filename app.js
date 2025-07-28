@@ -1,13 +1,12 @@
 import {Client, Collection, Events, MessageFlags} from 'discord.js';
 import {GatewayIntentBits} from 'discord-api-types/v10';
-import {GetCanonicalCardNameFromScryfallLink, IsScryfallCardLink} from './utils.js';
+import {GetCanonicalCardNameFromScryfallLink, IsScryfallCardLink, readSecret} from './utils.js';
 import {commands} from './commands.js';
 
 import 'dotenv/config';
-import {ScryfallCardRequest} from './scryfall.js';
 import {getCardLegalityEmbed} from './casualchallenge.js'
 
-const token = process.env.DISCORD_TOKEN
+const token = readSecret('discord_token')
 
 const client = new Client({intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]});
 client.commands = new Collection();
@@ -42,8 +41,10 @@ client.on(Events.InteractionCreate, async interaction => {
     }
 });
 
+let scryfallBotId = readSecret('scryfall_discord_bot_id');
+
 client.on(Events.MessageCreate, async message => {
-    if (message.author.id !== process.env.SCRYFALL_DISCORD_BOT_ID) {
+    if (message.author.id !== scryfallBotId) {
         return;
     }
     if (!IsScryfallCardLink(message.content)) {

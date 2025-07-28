@@ -1,12 +1,20 @@
-import {Card, Deck} from './utils.js';
+import {Card, Deck, readSecret} from './utils.js';
+
+let bearerToken = '';
+
 
 async function checkCard(cardName) {
     const url = 'https://api.casualchallenge.gg/v1/cards?names=' + cardName;
 
+    if(bearerToken.length === 0){
+        bearerToken = readSecret('cc_api_token');
+    }
+
+
     const res = await fetch(url, {
         headers: {
             'User-Agent': 'CCDiscordBotTest/1.0.0',
-            'Authorization': 'Bearer ' + process.env.CC_API_TOKEN
+            'Authorization': 'Bearer ' + bearerToken
         }
     });
 
@@ -29,12 +37,17 @@ function getUniqueCards(list) {
 export async function CCDeckCheck(list) {
     let uniqueCards = getUniqueCards(list);
     let payload = uniqueCards.join(';');
+
+    if(bearerToken.length === 0){
+        bearerToken = readSecret('cc_api_token');
+    }
+
     const url = 'https://api.casualchallenge.gg/v1/cards?names=' + payload;
 
     const res = await fetch(url, {
         headers: {
             'User-Agent': 'CCDiscordBotTest/1.0.0',
-            'Authorization': 'Bearer ' + process.env.CC_API_TOKEN
+            'Authorization': 'Bearer ' + bearerToken
         }
     }).catch(err => console.log(err));
 
