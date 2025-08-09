@@ -47,6 +47,22 @@ export function getErrorEmbed(error){
     };
 }
 
+export async function fetchRequest(url, h = {}) {
+    const res = await fetch(url, {headers: h});
+    // throw API errors
+    if (!res.ok) {
+        const data = await res.json();
+        console.log(res.status);
+        throw new Error(JSON.stringify(data));
+    }
+    return res;
+}
+
+export async function JSONfetchRequest(url, h = {}){
+    const res = await fetchRequest(url, h);
+    return await res.json();
+}
+
 export class Link {
     constructor(rawUrl) {
         this.rawUrl = rawUrl;

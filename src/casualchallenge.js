@@ -1,4 +1,4 @@
-import {Card, Deck, constants, readSecret} from './utils.js';
+import {Card, Deck, constants, readSecret, JSONfetchRequest} from './utils.js';
 
 /**
  * @type {null|string}
@@ -16,20 +16,12 @@ function getBearerToken() {
 async function checkCard(cardName) {
     const url = 'https://api.casualchallenge.gg/v1/cards?names=' + cardName;
 
-    const res = await fetch(url, {
-        headers: {
+    const headers = {
             'User-Agent': constants.USER_AGENT,
             'Authorization': 'Bearer ' + getBearerToken(),
-        }
-    });
+        };
 
-    if (!res.ok) {
-        console.log(await res.text());
-        const data = await res.json();
-        console.log(res.status);
-        throw new Error(JSON.stringify(data));
-    }
-    return await res.json();
+    return await JSONfetchRequest(url, headers);
 }
 
 function getUniqueCards(list) {
@@ -45,21 +37,11 @@ export async function CCDeckCheck(list) {
 
     const url = 'https://api.casualchallenge.gg/v1/cards?names=' + payload;
 
-    const res = await fetch(url, {
-        headers: {
-            'User-Agent': constants.USER_AGENT,
-            'Authorization': 'Bearer ' + getBearerToken(),
-        }
-    }).catch(err => console.log(err));
-
-    if (!res.ok) {
-        console.log(res.status);
-        console.log(res.statusText);
-        console.log(res);
-        throw new Error(`api.casualchallenge.gg returned ${res.status} (${res.statusText})`);
-    }
-
-    const data = await res.json();
+    const header= {
+        'User-Agent': constants.USER_AGENT,
+        'Authorization': 'Bearer ' + getBearerToken(),
+    };
+    const data = await JSONfetchRequest(url, header);
 
     let deck = new Deck(list.name);
     for (let i = 0; i < list.main.length; i++) {
