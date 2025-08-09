@@ -20,6 +20,5 @@ jobs:
           script: |
             cd ${{ secrets.PROJECT_PATH }}
             git pull origin master
-#           build?
             docker compose up --build -d --remove-orphans
             docker image prune -a -f
