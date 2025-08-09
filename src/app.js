@@ -55,4 +55,11 @@ client.on(Events.MessageCreate, async message => {
     await message.reply({embeds: [await getCardLegalityEmbed(link.getNormalizedCardName())]});
 });
 
+if(readSecret('debug') === 'true'){
+    client.on(Events.Debug, async message => {
+        console.log(message);
+    });
+}
+
+
 client.login(token);

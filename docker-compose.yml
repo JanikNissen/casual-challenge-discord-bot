@@ -12,6 +12,7 @@ services:
       - cc_api_token
       - discord_token
       - scryfall_discord_bot_id
+      - debug
 secrets:
   app_id:
     file: ./env/app_id.txt
@@ -21,3 +22,5 @@ secrets:
     file: ./env/discord_token.txt
   scryfall_discord_bot_id:
     file: ./env/scryfall_discord_bot_id.txt
+  debug:
+    file: ./env/debug.txt
