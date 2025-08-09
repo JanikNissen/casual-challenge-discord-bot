@@ -12,7 +12,7 @@ export function setCommands() {
     const c = [];
     commands.forEach(command => {
         c.push(command.data.toJSON());
-    })
+    });
     const rest = new REST().setToken(readSecret('discord_token'));
 
     (async () => {
@@ -34,6 +34,17 @@ export function setCommands() {
 
 export function readSecret(secretName) {
     return fs.readFileSync(`./env/${secretName}.txt`, 'utf8').trim();
+}
+
+export function getErrorEmbed(error){
+    return {
+            title: "Something went wrong!",
+            description: `Sadly the bot threw this error : \`\`\`${error}\`\`\` \nPlease contact the devs so they can fix it in the future!`,
+            color: 0xff7000,
+            "author": {
+                "name": "Oopsie..."
+            }
+    };
 }
 
 export class Link {

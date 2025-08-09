@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import {SlashCommandBuilder} from 'discord.js';
 import {InteractionContextType} from 'discord-api-types/v10';
-import {setCommands, Link} from './utils.js'
+import {setCommands, Link, getErrorEmbed} from './utils.js'
 import {CCDeckCheck, getCardLegalityEmbed} from './casualchallenge.js';
 import {ScryfallCardRequest, ScryfallDeckRequest} from './scryfall.js';
 
@@ -27,7 +27,13 @@ export const commands = [
         async execute(interaction) {
             const scry = await ScryfallCardRequest(interaction.options.getString('cardname'));
             const normalizedCardName = new Link(scry.scryfall_uri).getNormalizedCardName();
-            await interaction.editReply({embeds: [await getCardLegalityEmbed(normalizedCardName)]});
+            try {
+                const cardEmbed = await getCardLegalityEmbed(normalizedCardName);
+                await interaction.editReply({embeds: [cardEmbed]});
+            } catch (err) {
+                await interaction.editReply({embeds:[getErrorEmbed(err)]});
+            }
+
         }
 
     },
