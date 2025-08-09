@@ -1,20 +1,25 @@
 import {Card, Deck, constants, readSecret} from './utils.js';
 
-let bearerToken = '';
+/**
+ * @type {null|string}
+ */
+let bearerToken = null;
 
+function getBearerToken() {
+    if (bearerToken === null) {
+        bearerToken = readSecret('cc_api_token');
+    }
+
+    return bearerToken;
+}
 
 async function checkCard(cardName) {
     const url = 'https://api.casualchallenge.gg/v1/cards?names=' + cardName;
 
-    if (bearerToken.length === 0) {
-        bearerToken = readSecret('cc_api_token');
-    }
-
-
     const res = await fetch(url, {
         headers: {
             'User-Agent': constants.USER_AGENT,
-            'Authorization': 'Bearer ' + bearerToken
+            'Authorization': 'Bearer ' + getBearerToken(),
         }
     });
 
@@ -38,16 +43,12 @@ export async function CCDeckCheck(list) {
     let uniqueCards = getUniqueCards(list);
     let payload = uniqueCards.join(';');
 
-    if (bearerToken.length === 0) {
-        bearerToken = readSecret('cc_api_token');
-    }
-
     const url = 'https://api.casualchallenge.gg/v1/cards?names=' + payload;
 
     const res = await fetch(url, {
         headers: {
             'User-Agent': constants.USER_AGENT,
-            'Authorization': 'Bearer ' + bearerToken
+            'Authorization': 'Bearer ' + getBearerToken(),
         }
     }).catch(err => console.log(err));
 
