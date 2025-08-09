@@ -33,7 +33,7 @@ export function setCommands() {
 }
 
 export function readSecret(secretName) {
-    return fs.readFileSync(`./env/${secretName}.txt`, 'utf8');
+    return fs.readFileSync(`./env/${secretName}.txt`, 'utf8').trim();
 }
 
 export class Link {
@@ -44,6 +44,7 @@ export class Link {
         let isScryfall = this.url.hostname === 'scryfall.com';
         this.pathParts = this.url.pathname.split('/');
 
+        // pathParts[0] is always empty, as the path starts with /
         this._isScryfallCard = isScryfall && this.pathParts.length >= 2 && this.pathParts[1] === 'card';
         this._isScryfallDeck = isScryfall && this.pathParts.length >= 2 && this.pathParts[2] === 'decks';
     }
