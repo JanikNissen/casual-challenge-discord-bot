@@ -1,9 +1,10 @@
 services:
-  casual_challenge_application:
+  casual_challenge_discord_bot:
     build: .
     restart: always
     #ports:
     #  - "443:8443"
+    hostname: cc-bot
     container_name: casual-challenge-discord-bot
     #volumes:
     #  - ./ssl:/etc/ssl/certs/ssl:ro
