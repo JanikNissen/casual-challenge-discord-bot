@@ -1,0 +1,23 @@
+services:
+  casual_challenge_application:
+    build: .
+    restart: always
+    #ports:
+    #  - "443:8443"
+    container_name: casual-challenge-discord-bot
+    #volumes:
+    #  - ./ssl:/etc/ssl/certs/ssl:ro
+    secrets:
+      - app_id
+      - cc_api_token
+      - discord_token
+      - scryfall_discord_bot_id
+secrets:
+  app_id:
+    file: ./env/app_id.txt
+  cc_api_token:
+    file: ./env/cc_api_token.txt
+  discord_token:
+    file: ./env/discord_token.txt
+  scryfall_discord_bot_id:
+    file: ./env/scryfall_discord_bot_id.txt

@@ -11,8 +11,5 @@ RUN npm install
 # Our precious bot
 COPY . /usr/src/bot
 
-#Register Commands
-CMD ["node", "util.js"]
-
 # Start me!
-CMD ["node", "app.js"]
+CMD ["node", "src/app.js"]

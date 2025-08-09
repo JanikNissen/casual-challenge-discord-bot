@@ -10,7 +10,6 @@
   },
   "scripts": {
     "start": "node src/app.js",
-    "register": "node src/utils.js",
     "dev": "nodemon src/app.js"
   },
   "author": "Janik Nissen",
